@@ -2,18 +2,15 @@
 pragma solidity 0.8.13;
 
 import 'openzeppelin-contracts/contracts/utils/math/Math.sol';
-import 'contracts/interfaces/IBribe.sol';
 import 'contracts/interfaces/IERC20.sol';
 import 'contracts/interfaces/IGauge.sol';
 import 'contracts/interfaces/IOptionToken.sol';
-import 'contracts/interfaces/IVotingEscrow.sol';
 
 // Gauges are used to incentivize pools, they emit reward tokens over 7 days for staked LP tokens
 contract Gauge is IGauge {
 
     address public immutable stake; // the LP token that needs to be staked for rewards
-    address public immutable _ve; // the ve token used for gauges
-    address public immutable flow;
+    address public immutable _1USD;
     address public oFlow;
 
     uint public derivedSupply;
@@ -31,8 +28,6 @@ contract Gauge is IGauge {
 
     mapping(address => mapping(address => uint)) public lastEarn;
     mapping(address => mapping(address => uint)) public userRewardPerTokenStored;
-
-    mapping(address => uint) public tokenIds;
 
     uint public totalSupply;
     mapping(address => uint) public balanceOf;
@@ -76,18 +71,17 @@ contract Gauge is IGauge {
     uint public fees0;
     uint public fees1;
 
-    event Deposit(address indexed from, uint tokenId, uint amount);
-    event Withdraw(address indexed from, uint tokenId, uint amount);
+    event Deposit(address indexed from, uint amount);
+    event Withdraw(address indexed from, uint amount);
     event NotifyReward(address indexed from, address indexed reward, uint amount);
     event ClaimRewards(address indexed from, address indexed reward, uint amount);
     event OFlowSet(address indexed _oFlow);
 
-    constructor(address _stake, address  __ve, address _oFlow, address[] memory _allowedRewardTokens) {
+    constructor(address _stake, address _1usd,  address _oFlow, address[] memory _allowedRewardTokens) {
         stake = _stake;
-        _ve = __ve;
         oFlow = _oFlow;
-        flow = IVotingEscrow(_ve).token();
-        _safeApprove(flow, oFlow, type(uint256).max);
+        _1USD = _1usd;
+        _safeApprove(_1USD, oFlow, type(uint256).max);
 
         for (uint i; i < _allowedRewardTokens.length; i++) {
             if (_allowedRewardTokens[i] != address(0)) {
@@ -263,7 +257,7 @@ contract Gauge is IGauge {
             lastEarn[tokens[i]][account] = block.timestamp;
             userRewardPerTokenStored[tokens[i]][account] = rewardPerTokenStored[tokens[i]];
             if (_reward > 0) {
-                if (tokens[i] == flow) {
+                if (tokens[i] == _1USD) {
                     try IOptionToken(oFlow).mint(account, _reward){} catch {
                         _safeTransfer(tokens[i], account, _reward);
                     }
@@ -420,7 +414,7 @@ contract Gauge is IGauge {
         return reward;
     }
 
-    function depositAll(uint tokenId) external {
+    function depositAll() external {
         deposit(IERC20(stake).balanceOf(msg.sender), tokenId);
     }
 
@@ -442,11 +436,11 @@ contract Gauge is IGauge {
         lockEnd[account] = newLockEnd;
     }
 
-    function deposit(uint amount, uint tokenId) public lock { 
+    function deposit(uint amount) public lock { 
         _deposit(msg.sender, amount, tokenId);
     }
 
-    function _deposit(address account, uint amount, uint tokenId) private {
+    function _deposit(address account, uint amount) private {
         require(amount > 0);
         _updateRewardForAllTokens();
 
@@ -454,15 +448,6 @@ contract Gauge is IGauge {
         totalSupply += amount;
         balanceOf[account] += amount;
 
-        if (tokenId > 0) {
-            require(IVotingEscrow(_ve).ownerOf(tokenId) == account);
-            if (tokenIds[account] == 0) {
-                tokenIds[account] = tokenId;
-            }
-            require(tokenIds[account] == tokenId);
-        } else {
-            tokenId = tokenIds[account];
-        }
 
         uint _derivedBalance = derivedBalances[account];
         derivedSupply -= _derivedBalance;
@@ -482,13 +467,11 @@ contract Gauge is IGauge {
 
     function withdraw(uint amount) public {
         uint tokenId = 0;
-        if (amount == balanceOf[msg.sender]) {
-            tokenId = tokenIds[msg.sender];
-        }
+
         withdrawToken(amount, tokenId);
     }
 
-    function withdrawToken(uint amount, uint tokenId) public lock {
+    function withdrawToken(uint amount) public lock {
         _updateRewardForAllTokens();
 
         uint256 totalBalance = balanceOf[msg.sender];
@@ -511,13 +494,6 @@ contract Gauge is IGauge {
         balanceOf[msg.sender] -= amount;
         _safeTransfer(stake, msg.sender, amount);
 
-        if (tokenId > 0) {
-            require(tokenId == tokenIds[msg.sender]);
-            tokenIds[msg.sender] = 0;
-        } else {
-            tokenId = tokenIds[msg.sender];
-        }
-
         uint _derivedBalance = derivedBalances[msg.sender];
         derivedSupply -= _derivedBalance;
         _derivedBalance = derivedBalance(msg.sender);
@@ -527,7 +503,7 @@ contract Gauge is IGauge {
         _writeCheckpoint(msg.sender, derivedBalances[msg.sender]);
         _writeSupplyCheckpoint();
 
-        emit Withdraw(msg.sender, tokenId, amount);
+        emit Withdraw(msg.sender, amount);
     }
 
     function left(address token) external view returns (uint) {
@@ -540,7 +516,6 @@ contract Gauge is IGauge {
         require(token != stake);
         require(amount > 0);
         if (!isReward[token]) {
-            require(msg.sender == IVotingEscrow(_ve).team(), 'only team');
             require(rewards.length < MAX_REWARD_TOKENS, "too many rewards tokens");
         }
         if (rewardRate[token] == 0) _writeRewardPerTokenCheckpoint(token, 0, block.timestamp);
@@ -585,7 +560,7 @@ contract Gauge is IGauge {
     function setOFlow(address _oFlow) external {
         require(msg.sender == IVotingEscrow(_ve).team(), 'only team');
         oFlow = _oFlow;
-        _safeApprove(flow, _oFlow, type(uint256).max);
+        _safeApprove(_1USD, _oFlow, type(uint256).max);
         emit OFlowSet(_oFlow);
     }
 

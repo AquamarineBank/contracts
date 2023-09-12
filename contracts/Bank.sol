@@ -69,9 +69,10 @@ contract Bank is Ownable {
     function redeem(address want, uint amount) public {
         require (amount > 0, "You cant reddem 0");
         require (reserves[want] >= amount, "There are not enough reserves");
-        I1USD.burn(msg.sender, amount);
         uint256 sendAmnt = amount * redeemFee / 1000;
         uint256 feeAmnt = amount - sendAmnt;
+
+        I1USD.burn(msg.sender, amount);
 
         SafeERC20.safeTransferFrom(
             IERC20(want),
@@ -79,7 +80,8 @@ contract Bank is Ownable {
             _msgSender(),
             sendAmnt
         );
-        IGauge(staker).notifyRewardAmount(feeAmnt);
+        I1USD.mint(address(this), feeAmnt);
+        IGauge(staker).notifyRewardAmount(_1USD, feeAmnt);
     }
 
 
