@@ -68,8 +68,6 @@ contract Gauge is IGauge {
     /// @notice The number of checkpoints for each token
     mapping (address => uint) public rewardPerTokenNumCheckpoints;
 
-    uint public fees0;
-    uint public fees1;
 
     event Deposit(address indexed from, uint amount);
     event Withdraw(address indexed from, uint amount);
