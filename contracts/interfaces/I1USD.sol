@@ -8,5 +8,7 @@ interface I1USD {
     function transferFrom(address,address,uint) external returns (bool);
     function mint(address, uint) external returns (bool);
     function bunt(address, uint) external returns (bool);
-    function minter() external returns (address);
+    function bank() external returns (address);
+    function pauseMinting() external;
+    function resumeMinting() external;
 }

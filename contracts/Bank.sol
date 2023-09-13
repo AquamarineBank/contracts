@@ -2,6 +2,8 @@ pragma solidity 0.8.13;
 
 import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "contracts/interfaces/I1USD.sol";
+ 
 
 /**
  * @dev This contract allow users to deposit collateral and mint 1USD.
@@ -13,7 +15,7 @@ contract Bank is Ownable {
     mapping (address => bool) public paused;
 
     address _1USD; 
-    address gauge;
+    address staker;
     uint redeemFee = 990;
 
     constructor(address _1usd) {
@@ -43,6 +45,13 @@ contract Bank is Ownable {
         require (!backings[_token], "this is already a backing");
         backings[token] = true;
     }
+    function pauseMinting() public onlyOwner{
+        I1USD.pauseMinting();
+    }
+    function resumeMinting() public onlyOwner{
+        I1USD.resumeMinting();
+    }
+
 
     // READ functions
     function balanceOf(address token) public returns (uint amount) {
