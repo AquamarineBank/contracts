@@ -3,7 +3,7 @@ pragma solidity 0.8.13;
 
 import "contracts/interfaces/I1USD.sol";
 
-contract 1USD is I1USD {
+contract OneUSD is I1USD {
 
     uint256 private _totalSupply;
     string constant internal _NAME = "One Aquamarine Dollar";
@@ -24,6 +24,11 @@ contract 1USD is I1USD {
     constructor(address initialSupplyRecipient, uint initialAmount) {
         bank = msg.sender;
         _mint(initialSupplyRecipient, initialAmount);
+    }
+
+
+    function totalSupply() external view returns (uint) {
+        return _totalSupply;
     }
 
     // No checks as its meant to be once off to set minting rights to Bank.sol
@@ -74,7 +79,7 @@ contract 1USD is I1USD {
 
     //Internal Functions
     function _mint(address _to, uint _amount) internal returns (bool) {
-        totalSupply += _amount;
+        _totalSupply += _amount;
         unchecked {
             balanceOf[_to] += _amount;
         }
@@ -82,7 +87,7 @@ contract 1USD is I1USD {
         return true;
     }
     function _burn(address _from, uint _amount) internal returns (bool) {
-        totalSupply -= _amount;
+        _totalSupply -= _amount;
         unchecked {
             balanceOf[_from] -= _amount;
         }
