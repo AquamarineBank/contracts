@@ -39,6 +39,10 @@ contract Bank is Ownable {
         require (_gauge != 0);
         staker = _gauge;
     }
+    function addBacking(address _token) public onlyOwner {
+        require (!backings[_token], "this is already a backing");
+        backings[token] = true;
+    }
 
     // READ functions
     function balanceOf(address token) public returns (uint amount) {
