@@ -54,8 +54,18 @@ contract Bank is Ownable {
 
 
     // READ functions
-    function balanceOf(address token) public returns (uint amount) {
-        IERC20(token).balanceOf(address(this));
+    function balanceOf(address token) public returns (uint amount) { 
+       amount = _to18decimals(token,IERC20(token).balanceOf(address(this)));
+    }
+
+    //precision functions
+    function _to18decimals(address _token,uint _amount) internal returns (uint amount)  {
+       amount = _amount * 1e18 / 10**IERC20(_token).decimals();
+    }
+
+    function _from18decimals(address _token,uint _amount) internal returns (uint amount,uint amount18decimals) {
+       amount = _amount * 10**IERC20(token).decimals() / 1e18;
+       amount18decimals = _to18decimals(_token,amount); // to cover precision lost
     }
 
     // USER Functions
@@ -69,8 +79,11 @@ contract Bank is Ownable {
             address(this),
             amount
         );
-        reserves[token] = reserves[token] + amount;
-        I1USD.mint(msg.sender, amount);
+
+        uint _amount = _to18decimals(token,amount);
+
+        reserves[token] = reserves[token] + _amount;
+        I1USD.mint(msg.sender, _amount);
 
         if (balanceOf(token) > reserves[token]) {
             uint256 excess = balanceOf(token) - reserves[token];
@@ -82,17 +95,22 @@ contract Bank is Ownable {
     function redeem(address want, uint amount) public {
         require (amount > 0, "You cant reddem 0");
         require (reserves[want] >= amount, "There are not enough reserves");
-        uint256 sendAmnt = amount * redeemFee / 1000;
-        uint256 feeAmnt = amount - sendAmnt;
 
-        I1USD.burn(msg.sender, amount);
+        (uint _amount,uint _amount18decimals) = _from18decimals(want,amount);
+        uint256 sendAmnt = _amount18decimals * redeemFee / 1000;
+
+        I1USD.burn(msg.sender, _amount18decimals); // dust that can not be converted to 6 digit tokens is left on user wallet
+
+        (uint _sendAmnt,uint _sendAmnt18decimals) = _from18decimals(want,sendAmnt);
+        uint256 feeAmnt = _amount18decimals - _sendAmnt18decimals;
 
         SafeERC20.safeTransferFrom(
             IERC20(want),
             address(this),
             _msgSender(),
-            sendAmnt
+            _sendAmnt
         );
+
         I1USD.mint(address(this), feeAmnt);
         IGauge(staker).notifyRewardAmount(_1USD, feeAmnt);
     }
