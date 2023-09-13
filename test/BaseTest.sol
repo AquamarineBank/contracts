@@ -10,6 +10,7 @@ abstract contract BaseTest is Test {
     uint256 constant TOKEN_1 = 1e18;
     uint256 constant TOKEN_100K = 1e23; // 1e5 = 100K tokens with 18 decimals
 
+    address[] owners;
     MockERC20 USDC;
     MockERC20 DAI;
 
