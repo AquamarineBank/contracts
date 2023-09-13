@@ -60,7 +60,9 @@ contract Bank is Ownable {
 
     //Community function
     function panic(address token) public {
-        require(panicMen[msg.sender] == true);
+        require (panicMen[msg.sender] == true, "You are not able to do this");
+        require (backings[token] = true, "This token in not a valid backing");
+        require (paused[token] = false, "This token is paused");
         paused[token] = true;
     }
     
