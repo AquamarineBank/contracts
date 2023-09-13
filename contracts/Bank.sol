@@ -15,6 +15,7 @@ contract Bank is Ownable {
     mapping (address => bool) public backings;
     mapping (address => uint) public reserves;
     mapping (address => bool) public paused;
+    mapping (address => bool) public panicMen;
 
     address _1USD; 
     address staker;
@@ -53,7 +54,16 @@ contract Bank is Ownable {
     function resumeMinting() public onlyOwner{
         I1USD(_1USD).resumeMinting();
     }
+    function setPanicMan(address _man) public onlyOwner {
+        panicMen[_man] = true;
+    }
 
+    //Community function
+    function panic(address token) public {
+        require(panicMen[msg.sender] == true);
+        paused[token] = true;
+    }
+    
 
     // READ functions
     function balanceOf(address token) public returns (uint amount) { 
