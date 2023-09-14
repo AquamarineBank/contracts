@@ -2,16 +2,15 @@
 pragma solidity 0.8.13;
 
 import 'openzeppelin-contracts/contracts/utils/math/Math.sol';
-import 'contracts/interfaces/IERC20.sol';
+import "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 import 'contracts/interfaces/IGauge.sol';
-import 'contracts/interfaces/IOptionToken.sol';
 
 // Gauges are used to incentivize pools, they emit reward tokens over 7 days for staked LP tokens
 contract Gauge is IGauge {
 
     address public immutable stake; // the LP token that needs to be staked for rewards
     address public immutable _1USD;
-    address public oFlow;
+    address public team;
 
     uint public derivedSupply;
     mapping(address => uint) public derivedBalances;
@@ -73,13 +72,11 @@ contract Gauge is IGauge {
     event Withdraw(address indexed from, uint amount);
     event NotifyReward(address indexed from, address indexed reward, uint amount);
     event ClaimRewards(address indexed from, address indexed reward, uint amount);
-    event OFlowSet(address indexed _oFlow);
 
-    constructor(address _stake, address _1usd,  address _oFlow, address[] memory _allowedRewardTokens) {
+    constructor(address _stake, address _1usd, address[] memory _allowedRewardTokens, address _team) {
         stake = _stake;
-        oFlow = _oFlow;
         _1USD = _1usd;
-        _safeApprove(_1USD, oFlow, type(uint256).max);
+        team = _team;
 
         for (uint i; i < _allowedRewardTokens.length; i++) {
             if (_allowedRewardTokens[i] != address(0)) {
@@ -254,14 +251,8 @@ contract Gauge is IGauge {
             uint _reward = earned(tokens[i], account);
             lastEarn[tokens[i]][account] = block.timestamp;
             userRewardPerTokenStored[tokens[i]][account] = rewardPerTokenStored[tokens[i]];
-            if (_reward > 0) {
-                if (tokens[i] == _1USD) {
-                    try IOptionToken(oFlow).mint(account, _reward){} catch {
-                        _safeTransfer(tokens[i], account, _reward);
-                    }
-                } else {
-                    _safeTransfer(tokens[i], account, _reward);
-                }
+            if (_reward > 0) {             
+                _safeTransfer(tokens[i], account, _reward);
             }
 
             emit ClaimRewards(msg.sender, tokens[i], _reward);
@@ -413,12 +404,12 @@ contract Gauge is IGauge {
     }
 
     function depositAll() external {
-        deposit(IERC20(stake).balanceOf(msg.sender), tokenId);
+        deposit(IERC20(stake).balanceOf(msg.sender));
     }
 
     function depositWithLock(address account, uint256 amount, uint256 _lockDuration) external lock {
-        require(msg.sender == account || msg.sender == oFlow); // shoutout to dawid.d
-        _deposit(account, amount, 0);
+        require(msg.sender == account);
+        _deposit(account, amount);
 
         if(block.timestamp >= lockEnd[account]) { // if the current lock is expired relased the tokens from that lock before loking again
             delete lockEnd[account];
@@ -435,7 +426,7 @@ contract Gauge is IGauge {
     }
 
     function deposit(uint amount) public lock { 
-        _deposit(msg.sender, amount, tokenId);
+        _deposit(msg.sender, amount);
     }
 
     function _deposit(address account, uint amount) private {
@@ -456,7 +447,7 @@ contract Gauge is IGauge {
         _writeCheckpoint(account, _derivedBalance);
         _writeSupplyCheckpoint();
 
-        emit Deposit(account, tokenId, amount);
+        emit Deposit(account, amount);
     }
 
     function withdrawAll() external {
@@ -464,9 +455,7 @@ contract Gauge is IGauge {
     }
 
     function withdraw(uint amount) public {
-        uint tokenId = 0;
-
-        withdrawToken(amount, tokenId);
+        withdrawToken(amount);
     }
 
     function withdrawToken(uint amount) public lock {
@@ -548,18 +537,11 @@ contract Gauge is IGauge {
     }
 
     function swapOutRewardToken(uint i, address oldToken, address newToken) external {
-        require(msg.sender == IVotingEscrow(_ve).team(), 'only team');
+        require(msg.sender == team, 'only team');
         require(rewards[i] == oldToken);
         isReward[oldToken] = false;
         isReward[newToken] = true;
         rewards[i] = newToken;
-    }
-
-    function setOFlow(address _oFlow) external {
-        require(msg.sender == IVotingEscrow(_ve).team(), 'only team');
-        oFlow = _oFlow;
-        _safeApprove(_1USD, _oFlow, type(uint256).max);
-        emit OFlowSet(_oFlow);
     }
 
     function _safeTransfer(address token, address to, uint256 value) internal {
