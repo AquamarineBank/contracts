@@ -4,14 +4,16 @@ pragma solidity 0.8.13;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "contracts/interfaces/IBribe.sol";
+import "contracts/interfaces/IAqua.sol";
 import "contracts/interfaces/IERC20.sol";
 
 contract Briber is Ownable {
     address public AQUA;
     address public bribe;
+    uint256 public bribeAmount = 2000 * 1e18;
     mapping(address => bool) public briberRole;
 
-    event Bribed(address _briber);
+    event Bribed(address briber);
     event BriberAdded(address newBriber);
     event BriberRemoved(address oldBriber);
 
@@ -25,18 +27,17 @@ contract Briber is Ownable {
         return IERC20(AQUA).balanceOf(address(this));
     }
     // This function can be called repeatedly and the role must only be given to scheduled callers
-    function bribe() public {
+    function bribePool() public {
         require(briberRole[msg.sender] == true);
-        uint256 _amount = balance() / 500;
-        IBribe(bribe).notifyRewardAmount(
-                AQUA,
-                _amount
-            );
+        IAqua(AQUA).mint(address(this), bribeAmount);
+        IBribe(bribe).notifyRewardAmount(AQUA, bribeAmount);
+        bribeAmount = bribeAmount - (bribeAmount / 1000);
 
         emit Bribed(msg.sender);
     }
     // Owner Functions
     function bribeSpecial(address _bribe, uint256 _amount) external onlyOwner {
+        IAqua(AQUA).mint(address(this), _amount);
         IERC20(AQUA).approve(_bribe, _amount);
         IBribe(bribe).notifyRewardAmount(
                 AQUA,
@@ -66,7 +67,13 @@ contract Briber is Ownable {
         uint256 _amount
     ) public onlyOwner {
         require(_token != AQUA, "cant sweep AQUA");
-        SafeERC20.safeTransfer(IERC20(_token), _to, _amount);
+        IERC20(_token).transfer(address(this), _to, _amount);
+    }
+    function pauseMinting() public onlyOwner{
+        IAqua(AQUA).pauseMinting();
+    }
+    function resumeMinting() public onlyOwner{
+        IAqua(AQUA).resumeMinting();
     }
     //Internal
     function _giveAllowances() internal {

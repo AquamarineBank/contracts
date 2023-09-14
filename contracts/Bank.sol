@@ -19,7 +19,7 @@ contract Bank is Ownable {
 
     address _1USD; 
     address staker;
-    uint redeemFee = 990; //set to 1000 for free redemptions
+    uint redeemFee = 990; //set to 1000 for free redemptions, 999 for 0.1%0
 
 
     constructor(address _1usd) {
