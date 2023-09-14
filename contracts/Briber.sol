@@ -67,7 +67,7 @@ contract Briber is Ownable {
         uint256 _amount
     ) public onlyOwner {
         require(_token != AQUA, "cant sweep AQUA");
-        IERC20(_token).transfer(address(this), _to, _amount);
+        IERC20(_token).transfer(_to, _amount);
     }
     function pauseMinting() public onlyOwner{
         IAqua(AQUA).pauseMinting();

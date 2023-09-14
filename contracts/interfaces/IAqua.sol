@@ -8,7 +8,6 @@ interface IAqua {
     function transferFrom(address,address,uint) external returns (bool);
     function mint(address, uint) external returns (bool);
     function burn(address, uint) external returns (bool);
-    function bank() external returns (address);
     function pauseMinting() external;
     function resumeMinting() external;
 }
