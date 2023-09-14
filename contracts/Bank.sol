@@ -54,8 +54,8 @@ contract Bank is Ownable {
     function resumeMinting() public onlyOwner{
         I1USD(_1USD).resumeMinting();
     }
-    function setPanicMan(address _man) public onlyOwner {
-        panicMen[_man] = true;
+    function setPanicMan(address _man, bool _tf) public onlyOwner {
+        panicMen[_man] = _tf;
     }
 
     //Community function
