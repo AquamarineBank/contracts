@@ -30,6 +30,7 @@ contract Briber is Ownable {
     function bribePool() public {
         require(briberRole[msg.sender] == true);
         IAqua(AQUA).mint(address(this), bribeAmount);
+        IERC20(AQUA).approve(bribe, bribeAmount);
         IBribe(bribe).notifyRewardAmount(AQUA, bribeAmount);
         bribeAmount = bribeAmount - (bribeAmount / 1000);
 

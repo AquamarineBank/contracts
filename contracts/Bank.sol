@@ -3,9 +3,9 @@ pragma solidity 0.8.13;
 import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC20Metadata.sol";
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "contracts/1USD.sol";
 import "contracts/interfaces/I1USD.sol";
 import "contracts/interfaces/IGauge.sol";
- 
 
 /**
  * @dev This contract allow users to deposit collateral and mint 1USD.
@@ -17,13 +17,13 @@ contract Bank is Ownable {
     mapping (address => bool) public paused;
     mapping (address => bool) public panicMen;
 
-    address _1USD; 
+    address public _1USD; 
     address staker;
     uint redeemFee = 990; //set to 1000 for free redemptions, 999 for 0.1%0
 
 
-    constructor(address _1usd) {
-        _1USD = _1usd;
+    constructor() {
+        _1USD = address(new OneUSD());
     }
 
     // OwnerFunctions

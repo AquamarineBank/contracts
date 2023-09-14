@@ -16,8 +16,8 @@ contract BankTest is BaseTest {
         deployCoins();    
         mintStables();
 
-        oneUSDContract = new OneUSD(address(this),TOKEN_1);
-        bankContract = new Bank(address(oneUSDContract));
+        //oneUSDContract = new OneUSD(address(this),TOKEN_1);
+        bankContract = new Bank();
     }
     function test1() public {
 

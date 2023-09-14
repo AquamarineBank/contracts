@@ -21,11 +21,9 @@ contract OneUSD is I1USD {
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
 
-    constructor(address initialSupplyRecipient, uint initialAmount) {
+    constructor() {
         bank = msg.sender;
-        _mint(initialSupplyRecipient, initialAmount);
     }
-
 
     function totalSupply() external view returns (uint) {
         return _totalSupply;
