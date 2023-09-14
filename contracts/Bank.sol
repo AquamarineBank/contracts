@@ -19,7 +19,8 @@ contract Bank is Ownable {
 
     address _1USD; 
     address staker;
-    uint redeemFee = 990;
+    uint redeemFee = 990; //set to 1000 for free redemptions
+
 
     constructor(address _1usd) {
         _1USD = _1usd;
@@ -27,7 +28,7 @@ contract Bank is Ownable {
 
     // OwnerFunctions
     function setRedeemFee(uint _fee) public onlyOwner {
-        require( _fee <= 995, "fee can't be higher than 5%");
+        require( _fee <= 990, "fee can't be higher than 1%");
         redeemFee = _fee;
     }
     function pause(address token) public onlyOwner {
