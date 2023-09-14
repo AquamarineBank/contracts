@@ -36,6 +36,15 @@ contract Briber is Ownable {
         emit Bribed(msg.sender);
     }
     // Owner Functions
+    function bribeSpecial(address _bribe, uint256 _amount) external onlyOwner {
+        IERC20(AQUA).approve(_bribe, _amount);
+        IBribe(bribe).notifyRewardAmount(
+                AQUA,
+                _amount
+            );
+
+        emit Bribed(msg.sender);
+    }
     function setBribe(address _bribe) external onlyOwner {
         _removeAllowances();
         bribe = _bribe;
