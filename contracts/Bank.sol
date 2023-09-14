@@ -18,7 +18,7 @@ contract Bank is Ownable {
     mapping (address => bool) public panicMen;
 
     address public _1USD; 
-    address staker;
+    address boardroom;
     uint redeemFee = 990; //set to 1000 for free redemptions, 999 for 0.1%0
 
 
@@ -41,9 +41,9 @@ contract Bank is Ownable {
         require (paused[token], "This token is not paused");
         paused[token] = false;
     }
-    function setStaker(address _gauge) public onlyOwner {
+    function setBoardroom(address _gauge) public onlyOwner {
         require (_gauge != address(0));
-        staker = _gauge;
+        boardroom = _gauge;
     }
     function addBacking(address _token) public onlyOwner {
         require (!backings[_token], "this is already a backing");
@@ -103,7 +103,7 @@ contract Bank is Ownable {
         if (balanceOf(token) > reserves[token]) {
             uint256 excess = balanceOf(token) - reserves[token];
             I1USD(_1USD).mint(address(this), excess);
-            IGauge(staker).notifyRewardAmount(_1USD,excess); // TODO buffor for the rewards
+            IGauge(boardroom).notifyRewardAmount(_1USD,excess); // TODO buffor for the rewards
         }
     }
 
@@ -127,7 +127,7 @@ contract Bank is Ownable {
         );
 
         I1USD(_1USD).mint(address(this), feeAmnt);
-        IGauge(staker).notifyRewardAmount(_1USD, feeAmnt); // TODO buffor for the rewards
+        IGauge(boardroom).notifyRewardAmount(_1USD, feeAmnt); // TODO buffor for the rewards
     }
 
 

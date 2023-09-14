@@ -38,6 +38,7 @@ contract Briber is Ownable {
     }
     // Owner Functions
     function bribeSpecial(address _bribe, uint256 _amount) external onlyOwner {
+        require(_amount <= bribeAmount, "cant bribe > current bribeAmt");
         IAqua(AQUA).mint(address(this), _amount);
         IERC20(AQUA).approve(_bribe, _amount);
         IBribe(bribe).notifyRewardAmount(

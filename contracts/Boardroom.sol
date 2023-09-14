@@ -6,7 +6,7 @@ import "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 import 'contracts/interfaces/IGauge.sol';
 
 // Gauges are used to incentivize pools, they emit reward tokens over 7 days for staked LP tokens
-contract Gauge is IGauge {
+contract Boardroom is IGauge {
 
     address public immutable stake; // the LP token that needs to be staked for rewards
     address public immutable _1USD;
