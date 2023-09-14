@@ -6,6 +6,7 @@ import "contracts/interfaces/IAqua.sol";
 contract Aquamarine is IAqua {
 
     uint256 private _totalSupply;
+    uint256 private immutable _cap;
     string constant internal _NAME = "Aquamarine Token";
     string constant internal _SYMBOL = "AQUA";
     string constant internal _VERSION = "1";
@@ -21,14 +22,20 @@ contract Aquamarine is IAqua {
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
 
-    constructor(address initialSupplyRecipient, uint initialAmount) {
+    constructor(address initialSupplyRecipient, uint initialAmount,uint256 cap) {
+        require(cap > 0, "ERC20Capped: cap is 0");
+        _cap = cap;
         briber = msg.sender;
         _mint(initialSupplyRecipient, initialAmount);
     }
 
 
-    function totalSupply() external view returns (uint) {
+    function totalSupply() public view returns (uint) {
         return _totalSupply;
+    }
+
+    function cap() public view returns (uint256) {
+        return _cap;
     }
 
     // No checks as its meant to be once off to set minting rights to briber.sol
@@ -79,6 +86,7 @@ contract Aquamarine is IAqua {
 
     //Internal Functions
     function _mint(address _to, uint _amount) internal returns (bool) {
+        require(totalSupply() + _amount <= cap(), "ERC20Capped: cap exceeded");
         _totalSupply += _amount;
         unchecked {
             balanceOf[_to] += _amount;
@@ -102,4 +110,6 @@ contract Aquamarine is IAqua {
         emit Transfer(_from, _to, _value);
         return true;
     }
+
+
 }
