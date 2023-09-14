@@ -3,9 +3,9 @@
 pragma solidity 0.8.13;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 import "contracts/interfaces/IBribe.sol";
 import "contracts/interfaces/IAqua.sol";
-import "contracts/interfaces/IERC20.sol";
 
 contract Briber is Ownable {
     address public AQUA;

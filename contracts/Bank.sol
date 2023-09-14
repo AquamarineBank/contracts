@@ -1,10 +1,10 @@
 pragma solidity 0.8.13;
 
 import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts/contracts/interfaces/IERC20Metadata.sol";
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "contracts/interfaces/I1USD.sol";
 import "contracts/interfaces/IGauge.sol";
-import "contracts/interfaces/IERC20.sol";
  
 
 /**
@@ -70,16 +70,16 @@ contract Bank is Ownable {
 
     // READ functions
     function balanceOf(address token) public returns (uint amount) { 
-       amount = _to18decimals(token,IERC20Total(token).balanceOf(address(this)));
+       amount = _to18decimals(token,IERC20Metadata(token).balanceOf(address(this)));
     }
 
     //precision functions
     function _to18decimals(address _token,uint _amount) internal returns (uint amount)  {
-       amount = _amount * 1e18 / 10**IERC20Total(_token).decimals();
+       amount = _amount * 1e18 / 10**IERC20Metadata(_token).decimals();
     }
 
     function _from18decimals(address _token,uint _amount) internal returns (uint amount,uint amount18decimals) {
-       amount = _amount * 10**IERC20Total(_token).decimals() / 1e18;
+       amount = _amount * 10**IERC20Metadata(_token).decimals() / 1e18;
        amount18decimals = _to18decimals(_token,amount); // to cover precision lost
     }
 
