@@ -32,13 +32,13 @@ contract Bank is Ownable {
         redeemFee = _fee;
     }
     function pause(address token) public onlyOwner {
-        require (backings[token] = true, "This token in not a valid backing");
-        require (paused[token] = false, "This token is paused");
+        require (backings[token], "This token in not a valid backing");
+        require (!paused[token], "This token is paused");
         paused[token] = true;
     }
     function unPause(address token) public onlyOwner {
-        require (backings[token] = true, "This token in not a valid backing");
-        require (paused[token] = true, "This token is not paused");
+        require (backings[token], "This token in not a valid backing");
+        require (paused[token], "This token is not paused");
         paused[token] = false;
     }
     function setStaker(address _gauge) public onlyOwner {
@@ -61,9 +61,9 @@ contract Bank is Ownable {
 
     //Community function
     function panic(address token) public {
-        require (panicMen[msg.sender] == true, "You are not able to do this");
-        require (backings[token] = true, "This token in not a valid backing");
-        require (paused[token] = false, "This token is paused");
+        require (panicMen[msg.sender], "You are not able to do this");
+        require (backings[token], "This token in not a valid backing");
+        require (!paused[token], "This token is paused");
         paused[token] = true;
     }
     
@@ -86,8 +86,8 @@ contract Bank is Ownable {
     // USER Functions
     function deposit(address token, uint amount) public {
         require (amount > 0, "You cant deposit 0");
-        require (backings[token] = true, "This token in not a valid deposit");
-        require (paused[token] = false, "This token is paused");
+        require (backings[token], "This token in not a valid deposit");
+        require (!paused[token], "This token is paused");
         SafeERC20.safeTransferFrom(
             IERC20(token),
             _msgSender(),
@@ -103,7 +103,7 @@ contract Bank is Ownable {
         if (balanceOf(token) > reserves[token]) {
             uint256 excess = balanceOf(token) - reserves[token];
             I1USD(_1USD).mint(address(this), excess);
-            IGauge(staker).notifyRewardAmount(_1USD,excess);
+            IGauge(staker).notifyRewardAmount(_1USD,excess); // TODO buffor for the rewards
         }
     }
 
@@ -127,7 +127,7 @@ contract Bank is Ownable {
         );
 
         I1USD(_1USD).mint(address(this), feeAmnt);
-        IGauge(staker).notifyRewardAmount(_1USD, feeAmnt);
+        IGauge(staker).notifyRewardAmount(_1USD, feeAmnt); // TODO buffor for the rewards
     }
 
 

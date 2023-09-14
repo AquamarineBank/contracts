@@ -16,7 +16,7 @@ abstract contract BaseTest is Test {
 
     function deployOwners() public {
         owners = new address[](3);
-        owners[0] = address(0x1);
+        owners[0] = address(this);
         owners[1] = address(0x2);
         owners[2] = address(0x3);
     }
