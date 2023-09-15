@@ -130,13 +130,13 @@ contract BankTest is BaseTest {
         uint256 oneUsdBalancAfter = oneUSDContract.balanceOf(address(owners[0]));
         uint256 oneUsdBalanceAfterRewards = oneUSDContract.balanceOf(address(boardroomContract));
         uint256 DAIBalanceBankAfter = DAI.balanceOf(address(bankContract));
-        uint256 USDCresearves = USDC.balanceOf(address(bankContract));
+        uint256 USDCreserves = USDC.balanceOf(address(bankContract));
 
         assertEq(oneUsdBalanceBefore - oneUsdBalancAfter,TOKEN_1);
         assertEq(DAIBalanceAfter - DAIBalanceBefore,TOKEN_1 * bankContract.redeemFee() / 1000);
         assertEq(DAIBalanceBankBefore - DAIBalanceBankAfter,TOKEN_1 * bankContract.redeemFee() / 1000);
         assertEq(oneUsdBalanceAfterRewards - oneUsdBalanceBeforeRewards,TOKEN_1 - (TOKEN_1 * bankContract.redeemFee() / 1000));
-        assertEq(USDCresearves,USDC_1);
+        assertEq(USDCreserves,USDC_1);
     }
 
     function testPauseMinting() public {
