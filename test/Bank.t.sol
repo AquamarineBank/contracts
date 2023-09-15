@@ -84,4 +84,45 @@ contract BankTest is BaseTest {
         assertEq(usdcBalanceBankBefore - usdcBalanceBankAfter,USDC_1 * bankContract.redeemFee() / 1000);
         assertEq(oneUsdBalanceAfterRewards - oneUsdBalanceBeforeRewards,TOKEN_1 - (TOKEN_1 * bankContract.redeemFee() / 1000));
     }
+
+    function testPauseMinting() public {
+        bankContract.pauseMinting();
+
+        DAI.approve(address(bankContract), TOKEN_1);
+        
+        vm.expectRevert();
+        bankContract.deposit(address(DAI), TOKEN_1);
+
+        bankContract.resumeMinting();
+
+        bankContract.deposit(address(DAI), TOKEN_1);
+    }
+
+    function testPauseMintingOnlyOwner() public {
+         vm.startPrank(address(owners[1]));
+         vm.expectRevert();
+         bankContract.pauseMinting();
+         vm.stopPrank();
+    }
+
+    function testPauseBacking() public {
+        bankContract.pause(address(DAI));
+
+        DAI.approve(address(bankContract), TOKEN_1);
+        USDC.approve(address(bankContract), USDC_1);
+        
+        vm.expectRevert();
+        bankContract.deposit(address(DAI), TOKEN_1);
+
+        bankContract.resumeMinting();
+
+        bankContract.deposit(address(USDC), USDC_1);
+    }
+
+     function testPauseBackingOnlyOwner() public {
+         vm.startPrank(address(owners[1]));
+         vm.expectRevert();
+         bankContract.pause(address(DAI));
+         vm.stopPrank();
+    }
 }
