@@ -22,9 +22,9 @@ contract Aquamarine is IAqua {
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
 
-    constructor(address initialSupplyRecipient, uint initialAmount,uint256 cap) {
-        require(cap > 0, "ERC20Capped: cap is 0");
-        _cap = cap;
+    constructor(address initialSupplyRecipient, uint initialAmount,uint256 mintCap) {
+        require(mintCap > 0, "ERC20Capped: cap is 0");
+        _cap = mintCap;
         briber = msg.sender;
         _mint(initialSupplyRecipient, initialAmount);
     }
