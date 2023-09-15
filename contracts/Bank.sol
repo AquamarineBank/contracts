@@ -19,7 +19,7 @@ contract Bank is Ownable {
 
     address public _1USD; 
     address boardroom;
-    uint redeemFee = 990; //set to 1000 for free redemptions, 999 for 0.1%0
+    uint public redeemFee = 990; //set to 1000 for free redemptions, 999 for 0.1%0
 
 
     constructor() {
@@ -83,6 +83,17 @@ contract Bank is Ownable {
        amount18decimals = _to18decimals(_token,amount); // to cover precision lost
     }
 
+    function _transferRewardToBoardroom() internal {
+        uint256 rewardTokenCollectedAmount = IERC20(_1USD).balanceOf(address(this));
+
+        uint256 leftRewards = IGauge(boardroom).left(_1USD);
+
+        if(rewardTokenCollectedAmount > leftRewards) { // we are sending rewards only if we have more then the current rewards in the gauge
+            SafeERC20.safeApprove(IERC20(_1USD), boardroom, rewardTokenCollectedAmount);
+            IGauge(boardroom).notifyRewardAmount(_1USD, rewardTokenCollectedAmount);
+        }
+    }
+
     // USER Functions
     function deposit(address token, uint amount) public {
         require (amount > 0, "You cant deposit 0");
@@ -103,7 +114,7 @@ contract Bank is Ownable {
         if (balanceOf(token) > reserves[token]) {
             uint256 excess = balanceOf(token) - reserves[token];
             I1USD(_1USD).mint(address(this), excess);
-            IGauge(boardroom).notifyRewardAmount(_1USD,excess); // TODO buffor for the rewards
+            _transferRewardToBoardroom();
         }
     }
 
@@ -119,15 +130,14 @@ contract Bank is Ownable {
         (uint _sendAmnt,uint _sendAmnt18decimals) = _from18decimals(want,sendAmnt);
         uint256 feeAmnt = _amount18decimals - _sendAmnt18decimals;
 
-        SafeERC20.safeTransferFrom(
+        SafeERC20.safeTransfer(
             IERC20(want),
-            address(this),
             _msgSender(),
             _sendAmnt
         );
 
         I1USD(_1USD).mint(address(this), feeAmnt);
-        IGauge(boardroom).notifyRewardAmount(_1USD, feeAmnt); // TODO buffor for the rewards
+        _transferRewardToBoardroom();
     }
 
 
