@@ -85,6 +85,60 @@ contract BankTest is BaseTest {
         assertEq(oneUsdBalanceAfterRewards - oneUsdBalanceBeforeRewards,TOKEN_1 - (TOKEN_1 * bankContract.redeemFee() / 1000));
     }
 
+    function testMint18DeciThenRedeem() public {
+        DAI.approve(address(bankContract), TOKEN_1);
+        bankContract.deposit(address(DAI), TOKEN_1);
+        
+        uint256 oneUsdBalanceBefore = oneUSDContract.balanceOf(address(owners[0]));
+        uint256 oneUsdBalanceBeforeRewards = oneUSDContract.balanceOf(address(boardroomContract));
+        uint256 DAIBalanceBefore = DAI.balanceOf(address(owners[0]));
+        uint256 DAIBalanceBankBefore = DAI.balanceOf(address(bankContract));
+
+        oneUSDContract.approve(address(bankContract), oneUsdBalanceBefore);
+        bankContract.redeem(address(DAI), oneUsdBalanceBefore);
+
+        uint256 DAIBalanceAfter = DAI.balanceOf(address(owners[0]));
+        uint256 oneUsdBalancAfter = oneUSDContract.balanceOf(address(owners[0]));
+        uint256 oneUsdBalanceAfterRewards = oneUSDContract.balanceOf(address(boardroomContract));
+        uint256 DAIBalanceBankAfter = DAI.balanceOf(address(bankContract));
+
+        assertEq(oneUsdBalanceBefore - oneUsdBalancAfter,TOKEN_1);
+        assertEq(DAIBalanceAfter - DAIBalanceBefore,TOKEN_1 * bankContract.redeemFee() / 1000);
+        assertEq(DAIBalanceBankBefore - DAIBalanceBankAfter,TOKEN_1 * bankContract.redeemFee() / 1000);
+        assertEq(oneUsdBalanceAfterRewards - oneUsdBalanceBeforeRewards,TOKEN_1 - (TOKEN_1 * bankContract.redeemFee() / 1000));
+    }
+
+    function testMint6DeciAndAlt18DeciThenRedeemOther() public {
+        USDC.approve(address(bankContract), USDC_1);
+        bankContract.deposit(address(USDC), USDC_1);
+
+        uint256 oneUsdBalanceBefore = oneUSDContract.balanceOf(address(owners[0]));
+        uint256 oneUsdBalanceBeforeRewards = oneUSDContract.balanceOf(address(boardroomContract));
+        uint256 DAIBalanceBefore = DAI.balanceOf(address(owners[0]));
+
+        vm.startPrank(address(owners[1]));
+        DAI.approve(address(bankContract), TOKEN_1);
+        bankContract.deposit(address(DAI), TOKEN_1);
+        vm.stopPrank();
+                
+        uint256 DAIBalanceBankBefore = DAI.balanceOf(address(bankContract));
+
+        oneUSDContract.approve(address(bankContract), oneUsdBalanceBefore);
+        bankContract.redeem(address(DAI), oneUsdBalanceBefore);
+
+        uint256 DAIBalanceAfter = DAI.balanceOf(address(owners[0]));
+        uint256 oneUsdBalancAfter = oneUSDContract.balanceOf(address(owners[0]));
+        uint256 oneUsdBalanceAfterRewards = oneUSDContract.balanceOf(address(boardroomContract));
+        uint256 DAIBalanceBankAfter = DAI.balanceOf(address(bankContract));
+        uint256 USDCresearves = USDC.balanceOf(address(bankContract));
+
+        assertEq(oneUsdBalanceBefore - oneUsdBalancAfter,TOKEN_1);
+        assertEq(DAIBalanceAfter - DAIBalanceBefore,TOKEN_1 * bankContract.redeemFee() / 1000);
+        assertEq(DAIBalanceBankBefore - DAIBalanceBankAfter,TOKEN_1 * bankContract.redeemFee() / 1000);
+        assertEq(oneUsdBalanceAfterRewards - oneUsdBalanceBeforeRewards,TOKEN_1 - (TOKEN_1 * bankContract.redeemFee() / 1000));
+        assertEq(USDCresearves,USDC_1);
+    }
+
     function testPauseMinting() public {
         bankContract.pauseMinting();
 
