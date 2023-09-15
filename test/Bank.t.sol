@@ -5,7 +5,7 @@ import "forge-std/console2.sol";
 
 import "./BaseTest.sol";
 import "contracts/Bank.sol";
-import "contracts/1USD.sol";
+import "contracts/USD.sol";
 import "contracts/AQUA.sol";
 import "contracts/Boardroom.sol";
 
@@ -22,7 +22,7 @@ contract BankTest is BaseTest {
 
         aqua = new Aquamarine(address(this),100*TOKEN_1,3*TOKEN_100K);
         bankContract = new Bank();
-        oneUSDContract = OneUSD(bankContract._1USD());
+        oneUSDContract = OneUSD(bankContract._USD());
 
         address[] memory allowedRewards = new address[](1);
         allowedRewards[0] = address(oneUSDContract);

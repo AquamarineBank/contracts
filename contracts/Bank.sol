@@ -3,13 +3,13 @@ pragma solidity 0.8.13;
 import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-contracts/contracts/interfaces/IERC20Metadata.sol";
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "contracts/1USD.sol";
-import "contracts/interfaces/I1USD.sol";
+import "contracts/USD.sol";
+import "contracts/interfaces/IUSD.sol";
 import "contracts/interfaces/IGauge.sol";
 
 /**
- * @dev This contract allow users to deposit collateral and mint 1USD.
- * It also allows users to redeem 1USD for any of the underlying collateral.
+ * @dev This contract allow users to deposit collateral and mint USD.
+ * It also allows users to redeem USD for any of the underlying collateral.
  */
 contract Bank is Ownable {
     mapping (address => bool) public backings;
@@ -17,13 +17,13 @@ contract Bank is Ownable {
     mapping (address => bool) public paused;
     mapping (address => bool) public panicMen;
 
-    address public _1USD; 
+    address public _USD; 
     address boardroom;
     uint public redeemFee = 990; //set to 1000 for free redemptions, 999 for 0.1%0
 
 
     constructor() {
-        _1USD = address(new OneUSD());
+        _USD = address(new OneUSD());
     }
 
     // OwnerFunctions
@@ -50,10 +50,10 @@ contract Bank is Ownable {
         backings[_token] = true;
     }
     function pauseMinting() public onlyOwner{
-        I1USD(_1USD).pauseMinting();
+        IUSD(_USD).pauseMinting();
     }
     function resumeMinting() public onlyOwner{
-        I1USD(_1USD).resumeMinting();
+        IUSD(_USD).resumeMinting();
     }
     function setPanicMan(address _man, bool _tf) public onlyOwner {
         panicMen[_man] = _tf;
@@ -84,13 +84,13 @@ contract Bank is Ownable {
     }
 
     function _transferRewardToBoardroom() internal {
-        uint256 rewardTokenCollectedAmount = IERC20(_1USD).balanceOf(address(this));
+        uint256 rewardTokenCollectedAmount = IERC20(_USD).balanceOf(address(this));
 
-        uint256 leftRewards = IGauge(boardroom).left(_1USD);
+        uint256 leftRewards = IGauge(boardroom).left(_USD);
 
         if(rewardTokenCollectedAmount > leftRewards) { // we are sending rewards only if we have more then the current rewards in the gauge
-            SafeERC20.safeApprove(IERC20(_1USD), boardroom, rewardTokenCollectedAmount);
-            IGauge(boardroom).notifyRewardAmount(_1USD, rewardTokenCollectedAmount);
+            SafeERC20.safeApprove(IERC20(_USD), boardroom, rewardTokenCollectedAmount);
+            IGauge(boardroom).notifyRewardAmount(_USD, rewardTokenCollectedAmount);
         }
     }
 
@@ -109,11 +109,11 @@ contract Bank is Ownable {
         uint _amount = _to18decimals(token,amount);
 
         reserves[token] = reserves[token] + _amount;
-        I1USD(_1USD).mint(msg.sender, _amount);
+        IUSD(_USD).mint(msg.sender, _amount);
 
         if (balanceOf(token) > reserves[token]) {
             uint256 excess = balanceOf(token) - reserves[token];
-            I1USD(_1USD).mint(address(this), excess);
+            IUSD(_USD).mint(address(this), excess);
             _transferRewardToBoardroom();
         }
     }
@@ -125,7 +125,7 @@ contract Bank is Ownable {
         (uint _amount,uint _amount18decimals) = _from18decimals(want,amount);
         uint256 sendAmnt = _amount18decimals * redeemFee / 1000;
 
-        I1USD(_1USD).burn(msg.sender, _amount18decimals); // dust that can not be converted to 6 digit tokens is left on user wallet
+        IUSD(_USD).burn(msg.sender, _amount18decimals); // dust that can not be converted to 6 digit tokens is left on user wallet
 
         (uint _sendAmnt,uint _sendAmnt18decimals) = _from18decimals(want,sendAmnt);
         uint256 feeAmnt = _amount18decimals - _sendAmnt18decimals;
@@ -136,7 +136,7 @@ contract Bank is Ownable {
             _sendAmnt
         );
 
-        I1USD(_1USD).mint(address(this), feeAmnt);
+        IUSD(_USD).mint(address(this), feeAmnt);
         _transferRewardToBoardroom();
     }
 

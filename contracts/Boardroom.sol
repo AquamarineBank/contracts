@@ -9,7 +9,7 @@ import 'contracts/interfaces/IGauge.sol';
 contract Boardroom is IGauge {
 
     address public immutable stake; // the LP token that needs to be staked for rewards
-    address public immutable _1USD;
+    address public immutable _USD;
     address public team;
 
     uint public derivedSupply;
@@ -73,9 +73,9 @@ contract Boardroom is IGauge {
     event NotifyReward(address indexed from, address indexed reward, uint amount);
     event ClaimRewards(address indexed from, address indexed reward, uint amount);
 
-    constructor(address _stake, address _1usd, address[] memory _allowedRewardTokens, address _team) {
+    constructor(address _stake, address _usd, address[] memory _allowedRewardTokens, address _team) {
         stake = _stake;
-        _1USD = _1usd;
+        _USD = _usd;
         team = _team;
 
         for (uint i; i < _allowedRewardTokens.length; i++) {

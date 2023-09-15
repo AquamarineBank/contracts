@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
 
-import "contracts/interfaces/I1USD.sol";
+import "contracts/interfaces/IUSD.sol";
 
-contract OneUSD is I1USD {
+contract OneUSD is IUSD {
 
     uint256 private _totalSupply;
     string constant internal _NAME = "One Aquamarine Dollar";
-    string constant internal _SYMBOL = "1USD";
+    string constant internal _SYMBOL = "USD";
     string constant internal _VERSION = "1";
     uint8 constant internal _DECIMALS = 18;
 
