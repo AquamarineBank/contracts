@@ -11,29 +11,12 @@ import "contracts/AQUA.sol";
 import "contracts/Boardroom.sol";
 
 contract BoardroomTest is BaseTest {
-    Bank bankContract; 
-    OneUSD oneUSDContract;
-    Boardroom boardroomContract;
-    Aquamarine aqua;
-    BankTest banktest;
 
     function setUp() public {
         deployOwners();
         deployCoins();    
         mintStables();
-
-        aqua = new Aquamarine(address(this),100*TOKEN_1,3*TOKEN_100K);
-        bankContract = new Bank();
-        oneUSDContract = OneUSD(bankContract._USD());
-
-        address[] memory allowedRewards = new address[](1);
-        allowedRewards[0] = address(oneUSDContract);
-
-        boardroomContract = new Boardroom(address(aqua), address(oneUSDContract),allowedRewards,address(this));
-
-        bankContract.addBacking(address(DAI));
-        bankContract.addBacking(address(USDC));
-        bankContract.setBoardroom(address(boardroomContract));
+        deployUSD();
     }
 
     function testStakeAqua() public {

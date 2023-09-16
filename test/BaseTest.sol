@@ -3,6 +3,10 @@ pragma solidity 0.8.13;
 import "forge-std/Test.sol";
 import "forge-std/console2.sol";
 import "solmate/test/utils/mocks/MockERC20.sol";
+import "contracts/Bank.sol";
+import "contracts/USD.sol";
+import "contracts/AQUA.sol";
+import "contracts/Boardroom.sol";
 
 abstract contract BaseTest is Test {
     uint256 constant USDC_1 = 1e6;
@@ -13,6 +17,11 @@ abstract contract BaseTest is Test {
     address[] owners;
     MockERC20 USDC;
     MockERC20 DAI;
+
+    Bank bankContract; 
+    OneUSD oneUSDContract;
+    Boardroom boardroomContract;
+    Aquamarine aqua;
 
     function deployOwners() public {
         owners = new address[](3);
@@ -31,5 +40,20 @@ abstract contract BaseTest is Test {
             USDC.mint(owners[i], 1e12 * USDC_1);
             DAI.mint(owners[i], 1e12 * TOKEN_1);
         }
+    }
+
+    function deployUSD() public {
+        aqua = new Aquamarine(address(this),100*TOKEN_1,3*TOKEN_100K);
+        bankContract = new Bank();
+        oneUSDContract = OneUSD(bankContract._USD());
+
+        address[] memory allowedRewards = new address[](1);
+        allowedRewards[0] = address(oneUSDContract);
+
+        boardroomContract = new Boardroom(address(aqua), address(oneUSDContract),allowedRewards,address(this));
+
+        bankContract.addBacking(address(DAI));
+        bankContract.addBacking(address(USDC));
+        bankContract.setBoardroom(address(boardroomContract));
     }
 }
