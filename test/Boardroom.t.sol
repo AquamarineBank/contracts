@@ -75,14 +75,17 @@ contract BoardroomTest is BaseTest {
         aqua.approve(address(boardroomContract), TOKEN_1);
         boardroomContract.deposit(TOKEN_1);
 
-        testMint18DeciThenRedeem();
-
-        uint256 rewardsSentToBoardroom = oneUSDContract.balanceOf(address(boardroomContract));
-
-        vm.warp(604800);
-
         address[] memory rewards = new address[](1);
         rewards[0] = address(oneUSDContract);
+
+        assertEq(boardroomContract.left(address(oneUSDContract)),0);
+
+        testMint18DeciThenRedeem();
+
+        uint256 rewardsSentToBoardroom = boardroomContract.left(address(oneUSDContract));
+
+        vm.warp(block.timestamp + 604800);
+           
         boardroomContract.getReward(address(owners[0]), rewards);
 
         uint256 oneUSDBalAfterGetReward = oneUSDContract.balanceOf(address(owners[0]));
@@ -91,8 +94,9 @@ contract BoardroomTest is BaseTest {
     }
 
     function testMint18DeciThenRedeem() public {
-        DAI.approve(address(bankContract), TOKEN_1);
-        bankContract.deposit(address(DAI), TOKEN_1);
+        uint256 amoutToDepositRedem = TOKEN_1 *10;
+        DAI.approve(address(bankContract), amoutToDepositRedem);
+        bankContract.deposit(address(DAI), amoutToDepositRedem);
         
         uint256 oneUsdBalanceBefore = oneUSDContract.balanceOf(address(owners[0]));
         uint256 oneUsdBalanceBeforeRewards = oneUSDContract.balanceOf(address(boardroomContract));
@@ -107,10 +111,10 @@ contract BoardroomTest is BaseTest {
         uint256 oneUsdBalanceAfterRewards = oneUSDContract.balanceOf(address(boardroomContract));
         uint256 DAIBalanceBankAfter = DAI.balanceOf(address(bankContract));
 
-        assertEq(oneUsdBalanceBefore - oneUsdBalancAfter,TOKEN_1);
-        assertEq(DAIBalanceAfter - DAIBalanceBefore,TOKEN_1 * bankContract.redeemFee() / 1000);
-        assertEq(DAIBalanceBankBefore - DAIBalanceBankAfter,TOKEN_1 * bankContract.redeemFee() / 1000);
-        assertEq(oneUsdBalanceAfterRewards - oneUsdBalanceBeforeRewards,TOKEN_1 - (TOKEN_1 * bankContract.redeemFee() / 1000));
+        assertEq(oneUsdBalanceBefore - oneUsdBalancAfter,amoutToDepositRedem);
+        assertEq(DAIBalanceAfter - DAIBalanceBefore,amoutToDepositRedem * bankContract.redeemFee() / 1000);
+        assertEq(DAIBalanceBankBefore - DAIBalanceBankAfter,amoutToDepositRedem * bankContract.redeemFee() / 1000);
+        assertEq(oneUsdBalanceAfterRewards - oneUsdBalanceBeforeRewards,amoutToDepositRedem - (amoutToDepositRedem * bankContract.redeemFee() / 1000));
     }
 
     
