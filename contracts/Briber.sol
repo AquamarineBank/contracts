@@ -8,6 +8,10 @@ import "contracts/interfaces/IBribe.sol";
 import "contracts/interfaces/IAqua.sol";
 
 contract Briber is Ownable {
+    uint internal constant WEEK = 86400 * 7; // allows minting and bribing once per week (reset every Thursday 00:00 UTC)
+    uint public active_period;
+    uint public last_bribe_pecial_period;
+
     address public AQUA;
     address public bribe;
     uint256 public bribeAmount = 2000 * 1e18;
@@ -21,6 +25,9 @@ contract Briber is Ownable {
         bribe = _bribe;
         _giveAllowances();
         _transferOwnership(_team);
+
+         // allow to mint new emissions and bribe THIS Thursday
+        active_period = ((block.timestamp) / WEEK) * WEEK;
     }
 
     function balance() public view returns (uint) {
@@ -28,7 +35,11 @@ contract Briber is Ownable {
     }
     // This function can be called repeatedly and the role must only be given to scheduled callers
     function bribePool() public {
-        require(briberRole[msg.sender] == true);
+        require(briberRole[msg.sender], "not a briber");
+        require(block.timestamp >= active_period + WEEK, "already bribed this epoch");
+
+        active_period = ((block.timestamp) / WEEK) * WEEK;
+
         IAqua(AQUA).mint(address(this), bribeAmount);
         IERC20(AQUA).approve(bribe, bribeAmount);
         IBribe(bribe).notifyRewardAmount(AQUA, bribeAmount);
@@ -39,12 +50,16 @@ contract Briber is Ownable {
     // Owner Functions
     function bribeSpecial(address _bribe, uint256 _amount) external onlyOwner {
         require(_amount <= bribeAmount, "cant bribe > current bribeAmt");
+        require(last_bribe_pecial_period < active_period, "last_bribe_pecial_period < active_period");
+        
+        last_bribe_pecial_period = active_period;
         IAqua(AQUA).mint(address(this), _amount);
         IERC20(AQUA).approve(_bribe, _amount);
         IBribe(bribe).notifyRewardAmount(
                 AQUA,
                 _amount
             );
+
 
         emit Bribed(msg.sender);
     }
