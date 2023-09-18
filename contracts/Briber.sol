@@ -21,8 +21,9 @@ contract Briber is Ownable {
     event BriberAdded(address newBriber);
     event BriberRemoved(address oldBriber);
 
-    constructor(address _bribe, address _team) {
+    constructor(address _bribe, address _team,address _aqua) {
         bribe = _bribe;
+        AQUA = _aqua;
         _giveAllowances();
         _transferOwnership(_team);
 

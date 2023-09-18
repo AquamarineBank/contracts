@@ -7,6 +7,8 @@ import "contracts/Bank.sol";
 import "contracts/USD.sol";
 import "contracts/AQUA.sol";
 import "contracts/Boardroom.sol";
+import "contracts/Briber.sol";
+import "test/mocks/BribeMock.sol";
 
 abstract contract BaseTest is Test {
     uint256 constant USDC_1 = 1e6;
@@ -22,6 +24,8 @@ abstract contract BaseTest is Test {
     OneUSD oneUSDContract;
     Boardroom boardroomContract;
     Aquamarine aqua;
+    Briber briberContract;
+    BribeMock bribeMockContract;
 
     function deployOwners() public {
         owners = new address[](3);
@@ -46,6 +50,9 @@ abstract contract BaseTest is Test {
         aqua = new Aquamarine(address(this),100*TOKEN_1,3*TOKEN_100K);
         bankContract = new Bank();
         oneUSDContract = OneUSD(bankContract._USD());
+        bribeMockContract = new BribeMock();
+        briberContract = new Briber(address(bribeMockContract),address(this),address(aqua));
+        aqua.setBriber(address(briberContract));
 
         address[] memory allowedRewards = new address[](1);
         allowedRewards[0] = address(oneUSDContract);

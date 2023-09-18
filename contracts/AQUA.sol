@@ -39,7 +39,7 @@ contract Aquamarine is IAqua {
     }
 
     // No checks as its meant to be once off to set minting rights to briber.sol
-    function setbriber(address _briber) external {
+    function setBriber(address _briber) external {
         require(msg.sender == briber);
         briber = _briber;
     }
@@ -73,8 +73,8 @@ contract Aquamarine is IAqua {
     }
 
     function mint(address account, uint amount) external returns (bool) {
-        require(msg.sender == briber);
-        require(!paused);
+        require(msg.sender == briber,"not a briber");
+        require(!paused,"mint paused");
         _mint(account, amount);
         return true;
     }
