@@ -34,7 +34,7 @@ contract Briber is Ownable {
     function balance() public view returns (uint) {
         return IERC20(AQUA).balanceOf(address(this));
     }
-    // This function can be called repeatedly and the role must only be given to scheduled callers
+    
     function bribePool() public {
         require(briberRole[msg.sender], "not a briber");
         require(block.timestamp >= active_period + WEEK, "already bribed this epoch");
@@ -64,7 +64,7 @@ contract Briber is Ownable {
 
         emit Bribed(msg.sender);
     }
-    function setBribe(address _bribe) external onlyOwner {
+    function setBribeDestination(address _bribe) external onlyOwner {
         _removeAllowances();
         bribe = _bribe;
         _giveAllowances();
