@@ -3,8 +3,11 @@ Aquamarine
 On various chains, there exists a problem and a simple solution. Let's start with the problem. Since the fall of Multichain, there have sprung up many versions of the same token, 
 ie lzUSDC, axlUSDC. 
 Although this segregates the bridge risks, it also creates a need for liquidity pools of the same asset, all of which need incentives. To solve this my team has created a very simple solution: Aquamarine.
+
 Aquamarine is a protocol that wraps various stable coin assets into a single fungible asset. 
+
 There are no liquidations or oracle risks and it is permissionless.
+
 Aquamarine consists of 5 simple contracts, built to be sleek and succinct without a lot of extra risk. However, users of Aquamarine do take on the following risks:
 They trust in the solvency of Circles' USDC
 They trust in the solvency of Tethers' USDT
@@ -19,6 +22,7 @@ First, there are 2 tokens, USD and AQUA.
 USD is the token minted fully backed by lzUSDC, lzUSDT, axlUSDC, axlUSDT. It doesn't have any supply cap, tax, or any features, other than mintability. It is ONLY mintable by the BANK which is described below.
 AQUA is the governance token of the protocol. It also collects 100% of the fees. There was no presale, or allocations (outside those used by the team for initial liquidity), and its only emissions are as bribes via the BRIBER contract. It has a max cap of 300,000 tokens to ever be minted.
 Let's move on to the 3 other contracts: the BANK, BRIBER, BOARDROOM.
+
 The Bank
 This contract holds the backing of all USD in circulation. Anyone can come with any form of accepted collateral, deposit it, and mint USD at a 1 to 1 ratio. 
 100 USDC in and 100 USD out. 
@@ -30,7 +34,9 @@ then
 ALL fees are sent to the BOARDROOM.
 There were considerations of a variable fee, based on ratios. However, this idea was decided against for simplicity. Besides, even if there are efforts to mitigate with a balanced collateral spread, there is always a risk of one bad,  and certainly, losers if one bad arises. Let the free market sentiment choose the ratio with their deposits and withdraws.
 You can consider the BANK like a swapping liquidity pool with a trading fee only on selling USD into it.
+
 The team also has the ability to do the following:
+
 setRedeemFee() {max 1%}
 pause(address token) - pause individual collateral minting
 unPause(address token) - unpause individual collateral minting
@@ -42,16 +48,20 @@ setPanicMen() - grant/revoke addresses panic powers
 
 Inside the BANK there is also a function called panic() which allows addresses that are whitelisted (PanicMen) the ability to pause the minting of USD vs. individual collateral types. This feature is to give keepers and community members the ability to respond to events where it makes sense for the minted of USD vs. certain collateral to be stopped.
 PanicMen can ONLY pause. Only the team can unpause and add new collateral types.
+
 The Boardroom
 This contract is a simplified gauge staking contract that allows holders of AQUA to stake their AQUA for voting power on snapshot proposals. There are no permissionless governance systems in place. This means the settings in the contracts still need to be changed by the team at the guidance of the voters.
 The boardroom also gets the benefit of collecting all of the redemption fees. To join the board, simply deposit any number of AQUA tokens and you will have a voice equal to the size of your deposit.
+
 The Briber
 This contract is the only contract with the power to mint AQUA tokens. It can only mint them as bribes on solidly style gauges using the notifyRewardAmount() function. The bribePool() function can only be called by whitelisted addresses. Ie the team, and a keeper
 Each week this contract will mint AQUA tokens and use them to bribe the AQUA/USD liquidity pool gauge on Velocimeter. The amount of AQUA tokens minted in this way will start at 2000 tokens on the first bribe and degrade linearly by 1% for each bribe. Emissions in this manner will last about 3.45 years
 You can see the current amount by querying bribeAmount() in the BRIBER.
 This chart shows how much of the Total Supply is left to be minted at a period of time.There are cases where partnerships may arise, and other gauges might need bribing. This bribeSpecial() function can only be called by the team and is restricted to an amount no greater than the current bribeAmount(). This function does NOT reduce the bribeAmount() number, but does reduce the runway of total emissions
 BOTH bribePool() and BribeSpecial() can only be called once each, each week. So a maximum of 4000 AQUA can go out in week 1.
+
 The team also has the ability to do the following:
+
 setBribe() - changes the bribe contract destination in case this is modified
 addBriber() - grants power to an address to call bribePool()
 removeBriber() - revokes power to call bribePool()
