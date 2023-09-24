@@ -17,6 +17,12 @@ contract Bank is Ownable {
     mapping (address => bool) public paused;
     mapping (address => bool) public panicMen;
 
+    event RedeemFeeSet(uint indexed timestamp, uint newFee);
+    event tokenPaused(uint indexed timestamp, address pausedToken);
+    event paniced(uint indexed timestamp, address panicMan, address panicedToken);
+    event panicManAdded(address newPanicMan);
+
+
     address public _USD; 
     address boardroom;
     uint public redeemFee = 990; //set to 1000 for free redemptions, 999 for 0.1%0
@@ -30,11 +36,15 @@ contract Bank is Ownable {
     function setRedeemFee(uint _fee) public onlyOwner {
         require( _fee <= 990, "fee can't be higher than 1%");
         redeemFee = _fee;
+
+        emit RedeemFeeSet(block.timestamp, _fee);
     }
     function pause(address token) public onlyOwner {
         require (backings[token], "This token in not a valid backing");
         require (!paused[token], "This token is paused");
         paused[token] = true;
+
+        emit tokenPaused(block.timestamp, token);
     }
     function unPause(address token) public onlyOwner {
         require (backings[token], "This token in not a valid backing");
@@ -57,6 +67,8 @@ contract Bank is Ownable {
     }
     function setPanicMan(address _man, bool _tf) public onlyOwner {
         panicMen[_man] = _tf;
+
+        emit panicManAdded(_man);
     }
 
     //Community function
@@ -65,6 +77,8 @@ contract Bank is Ownable {
         require (backings[token], "This token in not a valid backing");
         require (!paused[token], "This token is paused");
         paused[token] = true;
+
+        emit panicedToken(block.timestamp, msg.sender, token);
     }
     
 
@@ -101,7 +115,7 @@ contract Bank is Ownable {
         require (!paused[token], "This token is paused");
         SafeERC20.safeTransferFrom(
             IERC20(token),
-            _msgSender(),
+            msg.sender,
             address(this),
             amount
         );
@@ -132,7 +146,7 @@ contract Bank is Ownable {
 
         SafeERC20.safeTransfer(
             IERC20(want),
-            _msgSender(),
+            msg.sender,
             _sendAmnt
         );
 

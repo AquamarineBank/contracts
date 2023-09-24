@@ -12,14 +12,17 @@ contract Briber is Ownable {
     uint public active_period;
     uint public last_bribe_pecial_period;
 
-    address public AQUA;
+    address public immutable AQUA;
     address public bribe;
     uint256 public bribeAmount = 2000 * 1e18;
     mapping(address => bool) public briberRole;
 
-    event Bribed(address briber);
+    event Bribed(address briber, address bribeDestination);
     event BriberAdded(address newBriber);
     event BriberRemoved(address oldBriber);
+    event NewBribeDestination(address newBribeDest);
+    event AquaMintingPaused(uint indexed timestamp);
+    event AquaMintingResumed(uint indexed timestamp);
 
     constructor(address _bribe, address _team,address _aqua) {
         bribe = _bribe;
@@ -36,7 +39,6 @@ contract Briber is Ownable {
     }
     
     function bribePool() public {
-        require(briberRole[msg.sender], "not a briber");
         require(block.timestamp >= active_period + WEEK, "already bribed this epoch");
 
         active_period = ((block.timestamp) / WEEK) * WEEK;
@@ -46,28 +48,31 @@ contract Briber is Ownable {
         IBribe(bribe).notifyRewardAmount(AQUA, bribeAmount);
         bribeAmount = bribeAmount - (bribeAmount / 1000);
 
-        emit Bribed(msg.sender);
+        emit Bribed(msg.sender, bribe);
     }
     // Owner Functions
-    function bribeSpecial(address _bribe, uint256 _amount) external onlyOwner {
+    function bribeSpecial(address _bribe, uint256 _amount) external {
+        require(briberRole[msg.sender], "not a briber");
         require(_amount <= bribeAmount, "cant bribe > current bribeAmt");
         require(last_bribe_pecial_period < active_period, "last_bribe_pecial_period < active_period");
         
         last_bribe_pecial_period = active_period;
         IAqua(AQUA).mint(address(this), _amount);
         IERC20(AQUA).approve(_bribe, _amount);
-        IBribe(bribe).notifyRewardAmount(
+        IBribe(_bribe).notifyRewardAmount(
                 AQUA,
                 _amount
             );
 
 
-        emit Bribed(msg.sender);
+        emit Bribed(msg.sender, _bribe);
     }
     function setBribeDestination(address _bribe) external onlyOwner {
         _removeAllowances();
         bribe = _bribe;
         _giveAllowances();
+
+        emit NewBribeDestination(_bribe);
     }
     function addBriber(address _newBriber) external onlyOwner {
         briberRole[_newBriber] = true;
@@ -89,9 +94,13 @@ contract Briber is Ownable {
     }
     function pauseMinting() public onlyOwner{
         IAqua(AQUA).pauseMinting();
+
+        emit AquaMintingPaused(block.timestamp);
     }
     function resumeMinting() public onlyOwner{
         IAqua(AQUA).resumeMinting();
+
+        emit AquaMintingResumed(block.timestamp);
     }
     //Internal
     function _giveAllowances() internal {
