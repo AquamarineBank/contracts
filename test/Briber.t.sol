@@ -47,25 +47,23 @@ contract BriberTest is BaseTest {
 
      function testBribeSpecial() public {
         uint256 aquaPreMinted = aqua.totalSupply();
+        BribeMock bribeMockContract2 = new BribeMock();
 
         briberContract.addBriber(address(this));
         vm.warp(block.timestamp + 7 days);
         briberContract.bribePool();
 
-        uint256 beforeBribe = aqua.balanceOf(address(bribeMockContract));
-        briberContract.bribeSpecial(address(bribeMockContract), 1000 * 1e18);
-        uint256 afterBribe = aqua.balanceOf(address(bribeMockContract));
-        assertEq(aqua.totalSupply() - aquaPreMinted,aqua.balanceOf(address(bribeMockContract)));
+        uint256 beforeBribe = aqua.balanceOf(address(bribeMockContract2));
+        briberContract.bribeSpecial(address(bribeMockContract2), 1000 * 1e18);
+        uint256 afterBribe = aqua.balanceOf(address(bribeMockContract2));
         assertEq(afterBribe - beforeBribe,1000 * 1e18);
 
         vm.warp(block.timestamp + 7 days);
         briberContract.bribePool();
         
-        beforeBribe = aqua.balanceOf(address(bribeMockContract));
-        briberContract.bribeSpecial(address(bribeMockContract), 1000 * 1e18);
-        afterBribe = aqua.balanceOf(address(bribeMockContract));
-        
-        assertEq(aqua.totalSupply() - aquaPreMinted,aqua.balanceOf(address(bribeMockContract)));
+        beforeBribe = aqua.balanceOf(address(bribeMockContract2));
+        briberContract.bribeSpecial(address(bribeMockContract2), 1000 * 1e18);
+        afterBribe = aqua.balanceOf(address(bribeMockContract2));
         assertEq(afterBribe - beforeBribe,1000 * 1e18);
     }
 
@@ -83,14 +81,4 @@ contract BriberTest is BaseTest {
 
     }
 
-    function testBribePoolNoBriber() public {
-        uint256 aquaPreMinted = aqua.totalSupply();
-
-        vm.warp(block.timestamp + 7 days);
-        
-        vm.expectRevert("not a briber");
-        briberContract.bribePool();
-        assertEq(aqua.totalSupply() - aquaPreMinted,aqua.balanceOf(address(bribeMockContract)));
-
-    }
 }

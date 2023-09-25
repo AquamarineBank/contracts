@@ -78,7 +78,7 @@ contract Bank is Ownable {
         require (!paused[token], "This token is paused");
         paused[token] = true;
 
-        emit panicedToken(block.timestamp, msg.sender, token);
+        emit paniced(block.timestamp, msg.sender, token);
     }
     
 
