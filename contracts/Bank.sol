@@ -131,6 +131,29 @@ contract Bank is Ownable {
             _transferRewardToBoardroom();
         }
     }
+        function depositFor(address _recipent, address token, uint amount) public {
+        require (amount > 0, "You cant deposit 0");
+        require (backings[token], "This token in not a valid deposit");
+        require (!paused[token], "This token is paused");
+        require (_recipent != address(0), "Do not mint to the burn address");
+        SafeERC20.safeTransferFrom(
+            IERC20(token),
+            msg.sender,
+            address(this),
+            amount
+        );
+
+        uint _amount = _to18decimals(token,amount);
+
+        reserves[token] = reserves[token] + _amount;
+        IUSD(_USD).mint(_recipent, _amount);
+
+        if (balanceOf(token) > reserves[token]) {
+            uint256 excess = balanceOf(token) - reserves[token];
+            IUSD(_USD).mint(address(this), excess);
+            _transferRewardToBoardroom();
+        }
+    }
 
     function redeem(address want, uint amount) public {
         require (amount > 0, "You cant reddem 0");
