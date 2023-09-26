@@ -10,7 +10,6 @@ import "contracts/interfaces/IAqua.sol";
 contract Briber is Ownable {
     uint internal constant WEEK = 86400 * 7; // allows minting and bribing once per week (reset every Thursday 00:00 UTC)
     uint public active_period;
-    uint public last_bribe_pecial_period;
 
     address public immutable AQUA;
     address public bribe;
@@ -54,9 +53,7 @@ contract Briber is Ownable {
     function bribeSpecial(address _bribe, uint256 _amount) external {
         require(briberRole[msg.sender], "not a briber");
         require(_amount <= bribeAmount, "cant bribe > current bribeAmt");
-        require(last_bribe_pecial_period < active_period, "last_bribe_pecial_period < active_period");
         
-        last_bribe_pecial_period = active_period;
         IAqua(AQUA).mint(address(this), _amount);
         IERC20(AQUA).approve(_bribe, _amount);
         IBribe(_bribe).notifyRewardAmount(
