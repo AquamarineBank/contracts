@@ -8,12 +8,12 @@ Aquamarine is a protocol that wraps various stable coin assets into a single fun
 
 There are no liquidations or oracle risks and it is permissionless.
 
-Aquamarine consists of 5 simple contracts, built to be sleek and succinct without a lot of extra risk. However, users of Aquamarine do take on the following risks:
-They trust in the solvency of Circles' USDC  
-They trust in the solvency of Tethers' USDT  
-They trust in the dependability of LayerZero's bridging solution  
-They trust in the dependability of Axelar's bridging solution  
-They trust in the security of Aquamarine's own contracts
+Aquamarine consists of 5 simple contracts, built to be sleek and succinct without a lot of extra risk. However, users of Aquamarine do take on the following risks:  
+* They trust in the solvency of Circles' USDC  
+* They trust in the solvency of Tethers' USDT  
+* They trust in the dependability of LayerZero's bridging solution  
+* They trust in the dependability of Axelar's bridging solution  
+* They trust in the security of Aquamarine's own contracts
 
 That said there are features that allow the community to add further risk, and reduce the risk above.  
 Let's go through all 5 of the contracts.  
@@ -37,14 +37,14 @@ You can consider the BANK like a swapping liquidity pool with a trading fee only
 
 The team also has the ability to do the following:
 
-setRedeemFee() {max 1%}  
-pause(address token) - pause individual collateral minting  
-unPause(address token) - unpause individual collateral minting  
-setBoardroom() - change the destination of the fees  
-addBacking() - add a collateral type  
-pauseMinting() - pause ALL minting of USD  
-resumeMinting() - unpause minting of USD  
-setPanicMen() - grant/revoke addresses panic powers  
+* setRedeemFee() {max 1%}  
+* pause(address token) - pause individual collateral minting  
+* unPause(address token) - unpause individual collateral minting  
+* setBoardroom() - change the destination of the fees  
+* addBacking() - add a collateral type  
+* pauseMinting() - pause ALL minting of USD  
+* resumeMinting() - unpause minting of USD  
+* setPanicMen() - grant/revoke addresses panic powers  
 
 Inside the BANK there is also a function called panic() which allows addresses that are whitelisted (PanicMen) the ability to pause the minting of USD vs. individual collateral types. This feature is to give keepers and community members the ability to respond to events where it makes sense for the minted of USD vs. certain collateral to be stopped.
 PanicMen can ONLY pause. Only the team can unpause and add new collateral types.
@@ -60,12 +60,12 @@ You can see the current amount by querying bribeAmount() in the BRIBER.
 There are cases where partnerships may arise, and other gauges might need bribing. This bribeSpecial() function can only be called by the team and is restricted to an amount no greater than the current bribeAmount(). This function does NOT reduce the bribeAmount() number, but does reduce the runway of total emissions.
 bribePool() can only be called once each week. 
 
-The team also has the ability to do the following:  
-setBribe() - changes the bribe contract destination in case this is modified  
-addBriber() - grants power to an address to call bribePool()  
-removeBriber() - revokes power to call bribePool()  
-pauseMinting() - pauses minting of AQUA  
-resumeMinting() - unpauses minting of AQUA  
+The team also has the ability to do the following:    
+* setBribe() - changes the bribe contract destination in case this is modified  
+* addBriber() - grants power to an address to call bribePool()  
+* removeBriber() - revokes power to call bribePool()  
+* pauseMinting() - pauses minting of AQUA  
+* resumeMinting() - unpauses minting of AQUA  
 
 ## The Insurance Fund
 To build a fund for safety which will be controlled fully by the boardroom vote, the protocol has received 2000 AQUA at initialization to stake in the boardroom.
