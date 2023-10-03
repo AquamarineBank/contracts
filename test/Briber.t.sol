@@ -46,7 +46,6 @@ contract BriberTest is BaseTest {
     }
 
      function testBribeSpecial() public {
-        uint256 aquaPreMinted = aqua.totalSupply();
         BribeMock bribeMockContract2 = new BribeMock();
 
         briberContract.addBriber(address(this));
