@@ -7,10 +7,11 @@ contract Aquamarine is IAqua {
 
     uint256 private _totalSupply;
     uint256 private immutable _cap;
-    string constant internal _NAME = "Aquamarine Token";
-    string constant internal _SYMBOL = "AQUA";
     string constant internal _VERSION = "1";
-    uint8 constant internal _DECIMALS = 18;
+
+    string public constant name = "Aquamarine Token";
+    string public constant symbol = "AQUA";
+    uint8 public constant decimals = 18;
 
     bool public paused;
 

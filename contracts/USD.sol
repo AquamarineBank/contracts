@@ -6,10 +6,11 @@ import "contracts/interfaces/IUSD.sol";
 contract OneUSD is IUSD {
 
     uint256 private _totalSupply;
-    string constant internal _NAME = "One Aquamarine Dollar";
-    string constant internal _SYMBOL = "USD";
     string constant internal _VERSION = "1";
-    uint8 constant internal _DECIMALS = 18;
+
+    string public constant name = "One Aquamarine Dollar";
+    string public constant symbol = "USD";
+    uint8 public constant decimals = 18;
 
     bool public paused;
 
