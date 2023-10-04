@@ -80,3 +80,32 @@ URLS
 Telegram: https://t.me/+xk9Mnwt7dkdmNjRl 
 Website:
 Twitter: NO Official Twitter
+
+## Contracts on Fantom Testnet
+      "contractName": "Aquamarine",
+      "contractAddress": "0xeebf7027C618E79A3f3B3d28c776C2ae2d9243e7",
+
+      "contractName": "Briber",
+      "contractAddress": "0xeCbA5500Ade4604F38DD885F926eA9031abEBb13",
+
+      "contractName": "Bank",
+      "contractAddress": "0xc951386567CEC366c0D542a5B6d37129643aD186",
+
+      "contractName": "USD",
+      "contractAddress": "0x2E4B6204690A8a90c3c2c7483fb1020e6E795549",
+
+      "contractName": "Boardroom",
+      "contractAddress": "0x883e3986473ef0A0e4eDDd6A9E528A513d466922",
+
+      "contractName": "TestUSD18",
+      "contractAddress": "0xfabD513b66FbE38E13fe0c440b3FeFb099152f8f",
+
+      "contractName": "TestUSD6",
+      "contractAddress": "0x6F7c8f25B6fEe5904e27c73B2EcE37FB6e7d4B5D",
+
+      "contractName": "BribeMock",
+      "contractAddress": "0x9C093304b7c92D0e38d6cA0a63c980417D3544b7",
+
+
+
+
