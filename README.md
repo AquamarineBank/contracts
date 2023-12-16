@@ -81,6 +81,31 @@ Telegram: https://t.me/+xk9Mnwt7dkdmNjRl 
 Website:
 Twitter: NO Official Twitter
 
+## Contracts on Fantom Sonic Testnet
+      "contractName": "Aquamarine",
+      "contractAddress": "0xdc06b03191d6Cc78623277e70Ad0F6Df34a679ee",
+
+      "contractName": "Briber",
+      "contractAddress": "0x0b27154A88EAfD3bE41693c7E0ab7Ab125AFb523",
+
+      "contractName": "Bank",
+      "contractAddress": "0x2d0EfbFc6Ea0bD22fD01c62D97868C08452F68c0",
+
+      "contractName": "USD",
+      "contractAddress": "0xE6b998b90A8BA2f9d0838cf3713839B6bE459b79",
+
+      "contractName": "Boardroom",
+      "contractAddress": "0x66DfE31908124173eA2851924851e92A36705688",
+
+      "contractName": "TestUSD18",
+      "contractAddress": "0xfabD513b66FbE38E13fe0c440b3FeFb099152f8f",
+
+      "contractName": "TestUSD6",
+      "contractAddress": "0x6F7c8f25B6fEe5904e27c73B2EcE37FB6e7d4B5D",
+
+      "contractName": "BribeMock",
+      "contractAddress": "0x9C093304b7c92D0e38d6cA0a63c980417D3544b7",
+
 ## Contracts on Fantom Testnet
       "contractName": "Aquamarine",
       "contractAddress": "0xeebf7027C618E79A3f3B3d28c776C2ae2d9243e7",
